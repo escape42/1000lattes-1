@@ -1,8 +1,6 @@
 package example;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent;
-// using SendGrid's Java Library
-// https://github.com/sendgrid/sendgrid-java
 import com.sendgrid.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -28,7 +26,6 @@ public class EmailSenderSendgrid {
     }
 
   public static void main(String[] args) throws IOException {
-//      sendEmail(args[0], args[1]);
 	  sendEmail("jukyungc", "jukyungc");
   }
 
@@ -115,7 +112,6 @@ public class EmailSenderSendgrid {
 	try {
 		base64encodedString = Base64.getEncoder().encodeToString(calendarContent.getBytes("utf-8"));
 	} catch (UnsupportedEncodingException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
 	  System.out.println(base64encodedString);

@@ -81,10 +81,8 @@ public class EmailSenderSMTP {
 		  });
 
 		try {
-			//register the text/calendar mime type
 			MimetypesFileTypeMap mimetypes = (MimetypesFileTypeMap)MimetypesFileTypeMap.getDefaultFileTypeMap();
 			mimetypes.addMimeTypes("text/calendar ics ICS");
-			//register the handling of text/calendar mime type
 		    MailcapCommandMap mailcap = (MailcapCommandMap) MailcapCommandMap.getDefaultCommandMap();
 		    mailcap.addMailcap("text/calendar;; x-java-content-handler=com.sun.mail.handlers.text_plain");
 
@@ -94,21 +92,13 @@ public class EmailSenderSMTP {
 		    message.addRecipient(Message.RecipientType.TO, new InternetAddress(toEmail));
 		    message.addRecipient(Message.RecipientType.TO, new InternetAddress(fromEmail));
 
-		    // Create an alternative Multipart
 		    Multipart multipart = new MimeMultipart("alternative");
 
-		  //part 1, html text
 		    BodyPart messageBodyPart = buildHtmlTextPart(user1, user2);
 		    multipart.addBodyPart(messageBodyPart);
 
-		 // Add part two, the calendar
-//		    BodyPart calendarPart = buildCalendarPart(user1, user2);
-//		    multipart.addBodyPart(calendarPart);
-
-		  //Put the multipart in message
 		    message.setContent(multipart);
 
-		    // send the message
 		    Transport transport = session.getTransport("smtp");
 		    transport.connect();
 		    transport.sendMessage(message, message.getAllRecipients());
@@ -124,18 +114,8 @@ public class EmailSenderSMTP {
 
 
 	private static BodyPart buildHtmlTextPart(String fromUser, String toUser) throws MessagingException {
-
         MimeBodyPart descriptionPart = new MimeBodyPart();
-
-        //Note: even if the content is spcified as being text/html, outlook won't read correctly tables at all
-        // and only some properties from div:s. Thus, try to avoid too fancy content
-
-
-//        "<div style=\"color:red;\">BRIDGEYE</div>"
-
-
         String content =
-//        		+ "<h1 style=\"color:black\">content></h1>"
         		"<div style=\"width:500px;\">"
         			+ "<div style=\"background-color:rgb(184,198,206);padding-left:50px;padding-right:50px;text-align:center;padding-top:0px;margin-top:0px;padding-bottom:5px\">"
         				+ "<img src=\"https://TODO@1000LattesDomain.com/1000lattes/1000_Lattes_logo.png\" style=\"width:70px;\"alt=\"Mountain View\">"
@@ -144,10 +124,8 @@ public class EmailSenderSMTP {
 	        			+ "meetup for a latte at your favorite coffee shop.</p>"
         			+ "</div>"
 	    			+ "<div style=\"padding-left:25px;padding-right:25px;text-align:center\">"
-	        			// images
 	        			+"<p style=\"font-size:16px\">We did our best to match you with someone with similar interests but in the event that no co-workers surfaced with similar interests to you, you became an \"interest orphan\" and we paired you with another \"interest orphan.\"</p>"
 	        			+ "<div style=\"font-weight:bold;font-size:18px;\">"
-//	        				+ "<p>Meet in at your favorite coffee shop</p>"
 						+ "<h3>Set up a time and meet at your favorite coffee shop</h3>"
 	    				+ "</div>"
     				+"</div>"
@@ -158,51 +136,5 @@ public class EmailSenderSMTP {
         return descriptionPart;
     }
 
-    //define somewhere the icalendar date format
     private static SimpleDateFormat iCalendarDateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-
-//    private static BodyPart buildCalendarPart(String fromUser, String toUser) throws Exception {
-//
-//    	Calendar cal = nextDayOfWeek(Calendar.FRIDAY);
-//    	Date start = cal.getTime();
-//	    cal.add(Calendar.MINUTE, 30);
-//	    Date end = cal.getTime();
-//        BodyPart calendarPart = new MimeBodyPart();
-//
-//        //check the icalendar spec in order to build a more complicated meeting request
-//        String calendarContent =
-//        		 "BEGIN:VCALENDAR\n" +
-//                         "METHOD:REQUEST\n" +
-//                         "PRODID: BCP - Meeting\n" +
-//                         "VERSION:2.0\n" +
-//                         "BEGIN:VEVENT\n" +
-//                         "DTSTART:" + iCalendarDateFormat.format(start)+ "Z\n" +
-//                         "DTEND:"  + iCalendarDateFormat.format(end)+ "Z\n" +
-//
-//                         "SUMMARY:Coffee: " + toUser + ", " + fromUser + "\n" +
-//                         "UID:324\n" +
-//                         "ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE:MAILTO:TODO@admin@1000LattesDomain.com\n" +
-//                         "ORGANIZER:MAILTO:TODO@admin@1000LattesDomain.com\n" +
-//                         "LOCATION:7th floor kitchen\n" +
-//                         "DESCRIPTION:Coffee: " + toUser + ", " + fromUser + "\n" +
-//                         "SEQUENCE:0\n" +
-//                         "PRIORITY:5\n" +
-//                         "CLASS:PUBLIC\n" +
-//                         "STATUS:CONFIRMED\n" +
-//                         "TRANSP:OPAQUE\n" +
-//                         "BEGIN:VALARM\n" +
-//                         "ACTION:DISPLAY\n" +
-//                         "DESCRIPTION:REMINDER\n" +
-//                         "TRIGGER;RELATED=START:-PT00H15M00S\n" +
-//                         "END:VALARM\n" +
-//                         "END:VEVENT\n" +
-//                         "END:VCALENDAR";
-//
-//        calendarPart.addHeader("Content-Class", "urn:content-classes:calendarmessage");
-//        calendarPart.setContent(calendarContent, "text/calendar;method=CANCEL");
-//
-//        return calendarPart;
-//    }
-
-
 }
