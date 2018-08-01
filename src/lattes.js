@@ -1,51 +1,44 @@
-import React from 'react';
+import React from "react";
 
-import Profile from './components/Profile';
-import RequestComplete from './components/RequestComplete';
+import Profile from "./components/Profile";
+import RequestComplete from "./components/RequestComplete";
 
-import {
-  interests,
-  createCookie,
-  getCookies,
-} from './latteHelper';
+import { interests, createCookie, getCookies } from "./latteHelper";
 
-import LattesBackgroundImage from './imgs/background.png';
-import LattesLogo from './imgs/1000_Lattes_logo.svg';
+import LattesBackgroundImage from "./imgs/background.png";
+import LattesLogo from "./imgs/1000_Lattes_logo.svg";
 
-const postUrl =
-  'https://TODO@postUrl/Lattes/';
-const interestGetUrl =
-  'https://TODO@interestGetUrl/Lattes/userId/';
+const postUrl = "https://TODO@postUrl/Lattes/";
+const interestGetUrl = "https://TODO@interestGetUrl/Lattes/userId/";
 
 class Lattes extends React.Component {
   state = {
     isLoggedIn: false,
     isInputValid: true,
-    value: '',
+    value: "",
     userId: null,
     interests: interests.slice(),
     coffeeCount: 0,
     selectedInterests: [],
     profileSaved: false,
-    matched: 'null',
-    areInterestsSubmitted: false,
+    matched: "null",
+    areInterestsSubmitted: false
   };
 
   submitInterests = () => {
     let selectedInterests = this.state.selectedInterests;
 
     if (selectedInterests.length > 0) {
-
       const data = {
         userId: this.state.userId,
         coffeeCount: this.state.coffeeCount,
         interests: selectedInterests.map(interest => ({ S: interest })),
-        matched: 'null'
+        matched: "null"
       };
-      const headers = new Headers({ 'Content-Type': 'application/json' });
+      const headers = new Headers({ "Content-Type": "application/json" });
 
       fetch(postUrl, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(data),
         headers: headers
       }).then(() => {
@@ -53,38 +46,35 @@ class Lattes extends React.Component {
           profileSaved: true,
           areInterestsSubmitted: true,
           isInputValid: true,
-          isPendingMatch: true,
+          isPendingMatch: true
         });
-        createCookie('isPendingMatch', true, 1);
+        createCookie("isPendingMatch", true, 1);
       });
     } else {
       this.setState({
-        isInputValid: false,
+        isInputValid: false
       });
     }
   };
 
   requestUserInterests = userId => {
-
-    fetch(`${interestGetUrl}${userId}`, { mode: 'cors' })
+    fetch(`${interestGetUrl}${userId}`, { mode: "cors" })
       .then(res => res.json())
       .then(data => {
-
         if (data.Count < 1) {
           data.Items = [
             {
-              'coffeeCount': {
-                'N': '0'
+              coffeeCount: {
+                N: "0"
               },
-              'matched': {
-                'S': 'null'
+              matched: {
+                S: "null"
               },
-              'interests': {
-                'L': [
-                ]
+              interests: {
+                L: []
               },
-              'userId': {
-                'S': userId
+              userId: {
+                S: userId
               }
             }
           ];
@@ -93,21 +83,19 @@ class Lattes extends React.Component {
 
         let selectedInterests = [];
         for (let i = 0; i < userInfo.interests.L.length; i++) {
-          selectedInterests.push(userInfo.interests.L[i]['S']);
+          selectedInterests.push(userInfo.interests.L[i]["S"]);
         }
         let matched =
-          userInfo.matched['S'] === 'null'
-            ? 'null'
-            : userInfo.matched['S'];
+          userInfo.matched["S"] === "null" ? "null" : userInfo.matched["S"];
 
         let coffeeCount = 0;
 
-        let filteredInterests = interests.filter(function (interest) {
+        let filteredInterests = interests.filter(function(interest) {
           return selectedInterests.indexOf(interest) === -1;
         });
         let cookies = getCookies();
-        if (matched !== 'null') {
-          createCookie('isPendingMatch', false, 1);
+        if (matched !== "null") {
+          createCookie("isPendingMatch", false, 1);
         }
 
         this.setState({
@@ -122,7 +110,7 @@ class Lattes extends React.Component {
       .catch(err => console.log(err)); // eslint-disable-line no-console
   };
 
-  onClickSelectedInterestHandler = (selectedInterestIndex) => {
+  onClickSelectedInterestHandler = selectedInterestIndex => {
     let selectedInterests = this.state.selectedInterests;
 
     let newSelectedInterests = [
@@ -133,7 +121,7 @@ class Lattes extends React.Component {
       )
     ];
 
-    let filteredInterests = interests.filter(function (interest) {
+    let filteredInterests = interests.filter(function(interest) {
       return newSelectedInterests.indexOf(interest) === -1;
     });
 
@@ -143,53 +131,48 @@ class Lattes extends React.Component {
     });
   };
 
-  onAutoCompleteSelect = (selectedInterest) => {
+  onAutoCompleteSelect = selectedInterest => {
     this.setState({
-      isInputValid: true,
+      isInputValid: true
     });
 
     document.activeElement.blur();
 
-    let selectedInterests = this.state.selectedInterests.indexOf(selectedInterest) > -1 ?
-      this.state.selectedInterests : [...this.state.selectedInterests, selectedInterest];
+    let selectedInterests =
+      this.state.selectedInterests.indexOf(selectedInterest) > -1
+        ? this.state.selectedInterests
+        : [...this.state.selectedInterests, selectedInterest];
 
     let interests = this.state.interests;
 
     let selectedInterestIndex = interests.indexOf(selectedInterest);
 
     this.setState({
-      value: '',
+      value: "",
       selectedInterests: selectedInterests,
       interests: [
         ...interests.slice(0, selectedInterestIndex),
-        ...interests.slice(
-          selectedInterestIndex + 1,
-          interests.length
-        )
-      ],
+        ...interests.slice(selectedInterestIndex + 1, interests.length)
+      ]
     });
   };
 
-  onAutoCompleteValueChange = (value) => {
+  onAutoCompleteValueChange = value => {
     this.setState({ value });
   };
 
   onBackToProfileClick = () => {
     this.requestUserInterests(this.state.userId);
-    // this.setState({
-    //   areInterestsSubmitted: false,
-    // });
   };
 
   logoutUser = () => {
-    createCookie('latteUserId', this.state.userId, -1);
-    createCookie('latteSession', 'TODO@https://accountName.okta.com', -1);
+    createCookie("latteUserId", this.state.userId, -1);
+    createCookie("latteSession", "TODO@https://accountName.okta.com", -1);
   };
 
   componentDidMount() {
-
-    const redirectUrl = 'https://1000lattesDomain.com';
-    var orgUrl = 'TODO@https://accountName.okta.com';
+    const redirectUrl = "https://1000lattesDomain.com";
+    var orgUrl = "TODO@https://accountName.okta.com";
     var oktaSignIn = new OktaSignIn({ baseUrl: orgUrl, logo: LattesLogo }); // eslint-disable-line no-undef
 
     let cookies = getCookies();
@@ -202,89 +185,89 @@ class Lattes extends React.Component {
         isPendingMatch: cookies.isPendingMatch
       });
     } else {
-      oktaSignIn.renderEl(
-        { el: '#okta-login-container' },
-        function (res) {
-          if (res.status === 'SUCCESS') {
-            createCookie('latteSession', 'TODO@https://accountName.okta.com', 1);
+      oktaSignIn.renderEl({ el: "#okta-login-container" }, function(res) {
+        if (res.status === "SUCCESS") {
+          createCookie("latteSession", "TODO@https://accountName.okta.com", 1);
 
-            const email = res.user.profile.login;
-            const userId = email.substr(0, email.indexOf('@'));
-            // const fullName = res.user.profile.firstName + " " + res.user.profile.lastName;
-            createCookie('latteUserId', userId, 1);
-            createCookie('firstName', res.user.profile.firstName, 1);
-            createCookie('isPendingMatch', false, 1);
-            // createCookie('lastName', res.user.profile.lastName, 1);
-            res.session.setCookieAndRedirect(redirectUrl);
-          } else {
-            this.displayErrorPage();
-          }
+          const email = res.user.profile.login;
+          const userId = email.substr(0, email.indexOf("@"));
+          createCookie("latteUserId", userId, 1);
+          createCookie("firstName", res.user.profile.firstName, 1);
+          createCookie("isPendingMatch", false, 1);
+          res.session.setCookieAndRedirect(redirectUrl);
+        } else {
+          this.displayErrorPage();
         }
-      );
+      });
     }
     this.requestUserInterests(cookies.latteUserId);
   }
 
   displayErrorPage() {
-    // todo: trigger actual error page
-    alert('Sorry, something seems to have gone wrong. Please try refreshing or coming back later!');
+    alert(
+      "Sorry, something seems to have gone wrong. Please try refreshing or coming back later!"
+    );
   }
 
   render() {
-
     if (!this.state.isLoggedIn) {
       return (
         <div>
           <div className="backgroundImageLattes">
-            <img className="fullWidthHeight" src={ LattesBackgroundImage } />
+            <img className="fullWidthHeight" src={LattesBackgroundImage} />
           </div>
           <div className="miniCol24 xxsCol24 mdColOffset8 mdCol8 pan">
-            <div id="okta-login-container"></div>
+            <div id="okta-login-container" />
           </div>
         </div>
       );
     }
 
     return (
-      <div >
+      <div>
         <div className="backgroundImageLattes">
-          <img className="imgResponsive fullWidthHeight" src={ LattesBackgroundImage } />
+          <img
+            className="imgResponsive fullWidthHeight"
+            src={LattesBackgroundImage}
+          />
         </div>
 
-        <div id="headerContainer" className=" miniCol24 xxsColOffset4 xxsCol16 smlColOffset5 smlCol14 mdColOffset7 mdCol10 pvm prm coffeeTrackerContainer fullWidth">
+        <div
+          id="headerContainer"
+          className=" miniCol24 xxsColOffset4 xxsCol16 smlColOffset5 smlCol14 mdColOffset7 mdCol10 pvm prm coffeeTrackerContainer fullWidth"
+        >
           <div className="miniCol5 xxsCol6 xsCol5 smlCol5 mdCol4 lrgCol4 txtC coffeeTrackerImage centerBlock">
-            <img src={ LattesLogo }
-              alt=""
-              className="imgResponsive phm pts"
-            />
+            <img src={LattesLogo} alt="" className="imgResponsive phm pts" />
           </div>
         </div>
 
-        <div id="profileContainer" className="miniCol24 xxsColOffset4 xxsCol16 smlColOffset5 smlCol14 mdColOffset7 mdCol10 backgroundBasic  ptm fullWidth">
-
-          {
-            this.state.areInterestsSubmitted ?
-              <RequestComplete
-                matched={ this.state.matched }
-                onBackToProfileClick={ this.onBackToProfileClick }
-              />
-              :
-              <Profile
-                userId={ this.state.userId }
-                firstName={ this.state.firstName }
-                interests={ this.state.interests }
-                selectedInterests={ this.state.selectedInterests }
-                value={ this.state.value }
-                matched={ this.state.matched }
-                onClickSelectedInterestHandler={ this.onClickSelectedInterestHandler }
-                onAutoCompleteSelect={ this.onAutoCompleteSelect }
-                onAutoCompleteValueChange={ this.onAutoCompleteValueChange }
-                onSubmitInterests={ this.submitInterests }
-                isInputValid={ this.state.isInputValid }
-                isPendingMatch={ this.state.isPendingMatch }
-              />
-          }
-
+        <div
+          id="profileContainer"
+          className="miniCol24 xxsColOffset4 xxsCol16 smlColOffset5 smlCol14 mdColOffset7 mdCol10 backgroundBasic  ptm fullWidth"
+        >
+          {this.state.areInterestsSubmitted ? (
+            <RequestComplete
+              matched={this.state.matched}
+              onBackToProfileClick={this.onBackToProfileClick}
+            />
+          ) : (
+            <Profile
+              userId={this.state.userId}
+              firstName={this.state.firstName}
+              interests={this.state.interests}
+              selectedInterests={this.state.selectedInterests}
+              value={this.state.value}
+              matched={this.state.matched}
+              onClickSelectedInterestHandler={
+                this.onClickSelectedInterestHandler
+              }
+              onAutoCompleteSelect={this.onAutoCompleteSelect}
+              onAutoCompleteValueChange={this.onAutoCompleteValueChange}
+              onSubmitInterests={this.submitInterests}
+              isInputValid={this.state.isInputValid}
+              isPendingMatch={this.state.isPendingMatch}
+            />
+          )}
         </div>
       </div>
     );
